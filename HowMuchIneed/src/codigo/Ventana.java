@@ -176,53 +176,65 @@ public class Ventana extends JFrame implements KeyListener {
                 sc2.close();
                 if(Integer.parseInt(numero.getText()) == tam && tam == tam2){
                     Scanner sc3 = new Scanner(notasArea.getText());
+                    sc3.useLocale(java.util.Locale.US); // <--- Agrega esta línea
                     Scanner sc4 = new Scanner(ponderacionArea.getText());
+                    sc4.useLocale(java.util.Locale.US); // <--- Agrega esta línea
                     double notasVector[] = new double[Integer.parseInt(numero.getText())];
                     int ponderacionVector[] = new int[notasVector.length];
-                    int ubicacionProductos1[] =new int[notasVector.length];
-                    int ubicacionProductos[] =new int[notasVector.length];
-                    int iFalsa = 0;
-                    int iFalsa2 = 0;
-                    double porcentaje = 0;
-                    double acumulado = 0;
-                    double acumulador = 0;
-                    double vectorRellenar[] = new double[notasVector.length];
+                    int administradorPorCalcular = 0;
                     for(int i = 0; i<notasVector.length;i++){
                         notasVector[i] = sc3.nextDouble();
+                        ponderacionVector[i] = sc4.nextInt();
                         if(notasVector[i] == 0.0){
-                            ubicacionProductos[iFalsa] = i;
-                            iFalsa++;
+                            administradorPorCalcular++;
+                        }
+                    }
+                    int v0[] = new int[administradorPorCalcular];
+                    int v1[] = new int[v0.length];
+                    int ayudante2 = 0;
+                    int ayudante1 = 0;
+                    for(int i = 0; i<notasVector.length; i++){
+                        if(notasVector[i] == 0.0){
+                            v0[ayudante1] = i;
+                            ayudante1++;
                         }
                         else{
-                            acumulado = 0;
-                            ubicacionProductos1[iFalsa2] = i;
-                            porcentaje = notasVector[i] * ponderacionVector[i] / 20;
-                            acumulado= porcentaje * 20 / 100;
-                            vectorRellenar[iFalsa2] = acumulado;
-                            iFalsa2++;
-                            acumulador = acumulador + acumulado;
+                            v1[ayudante2] = i;
+                            ayudante2++;
                         }
-                        ponderacionVector[i] = sc4.nextInt();
                     }
-                    double vectorRellenar1[] = new double[iFalsa];
-                    double restante = 0.0; 
-                    for(int i =0; i<iFalsa;i++){
-                        restante = 0;
-                        if(acumulador <9.5){
-                            restante = 9.5 - acumulador;
-                            vectorRellenar1[i] =  restante * 20 / (ponderacionVector[ubicacionProductos[i]] * 20 / 100);
-                            acumulador =acumulador + vectorRellenar[i];
+                    double vectorNotasObtenidas[] = new double[v1.length];
+                    double  acumulador = 0;
+                    double  acumulado = 0;
+                    double  acumuladoNota = 0;
+                    for(int i=0;i<v1.length;i++){
+                        acumulado = ponderacionVector[v1[i]] * 20 /100;
+                        acumuladoNota = notasVector[v1[i]] * acumulado / 20;
+                        vectorNotasObtenidas[i] = acumuladoNota;
+                        acumulador = acumulador+acumuladoNota;
+                    }
+                    double vectorNotasRestantes[] = new double[notasVector.length];
+                    double restante = 0;
+                    double acumulado1 = 0;
+                    int contadorIndependiente = 0;
+                    for(int i =0; i<notasVector.length;i++){
+                        restante = 9.5 - acumulador;
+                        if(restante>0){
+                            if(notasVector[i] != 0.0){
+                                vectorNotasRestantes[i] = notasVector[i];
+                            }
+                            else{
+                                acumulado = ponderacionVector[v0[contadorIndependiente]] * 20 / 100;
+                                acumulado1 = restante * 20 / acumulado;
+                                vectorNotasRestantes[i] = acumulado1;
+                                acumulador = acumulador + acumulado1;
+                                contadorIndependiente++;
+                            }
                         }
                     }
                     notasArea.setText("");
-                    int buscador = 0;
                     for(int i = 0; i<notasVector.length;i++){
-                        if(i != ubicacionProductos[buscador]){
-                            notasArea.append(""+notasVector[i]);
-                        }
-                        else{
-                            notasArea.append(""+vectorRellenar1[buscador]);
-                        }
+                        notasArea.append(""+vectorNotasRestantes[i]);
                         notasArea.append("\n");
                     }
                 }
